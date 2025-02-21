@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { createServer } from "http"; 
 import { Server } from "socket.io";
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+import {futureMarketRoute} from "../routes/futureMarketRoute/futureMarketRoute";
 
 
 class App {
@@ -19,6 +20,7 @@ class App {
         this.config();
         this.mongoSetup();
         this.socketSetup();
+        this.routes();
     }
 
     private config(): void {
@@ -29,7 +31,7 @@ class App {
    
 
     private mongoSetup(): void{
-        const mongoUri = process.env.MONGO_URI ?? "mongodb://localhost:27017/defaultDB"; // Fallback URI
+        const mongoUri = "mongodb+srv://himanshu90210:Bhumbumbhole1@cluster90210.1phpfjw.mongodb.net/balkan_tech_solution"; // Fallback URI
 
         mongoose.connect(mongoUri)
             .then(() => {
@@ -48,6 +50,12 @@ class App {
                 console.log("❌ WebSocket Disconnected:", socket.id);
             });
         });
+    }
+
+    private routes(): void {
+        // Instantiate futureMarketRoute and pass the server instance
+        const futureMarket = new futureMarketRoute(this.server);
+        futureMarket.route(this.app); // Pass the app instance to the route
     }
 }
 const appInstance = new App();

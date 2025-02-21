@@ -8,7 +8,7 @@ const schema = new Schema ({
         requires: true,
     },
     interval: {
-        type: Number,
+        type: String,
         required: true
     },
     openTime: {

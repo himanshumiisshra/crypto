@@ -8,7 +8,7 @@ const schema = new Schema ({
         requires: true,
     },
     interval: {
-        type: Number,
+        type: String,
         required: true
     },
     openTime: {
@@ -39,10 +39,8 @@ const schema = new Schema ({
         type: Number,
         required: true
     },
-    createdAt : {
-        timestamps : true,
-        required: true
-    }
+},{
+    timestamps: true, 
 })
 
 export default mongoose.model('binance_future_market_schema',schema)
