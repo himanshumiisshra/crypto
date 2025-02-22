@@ -1,13 +1,11 @@
-
-
 export interface kuCoinFutureMarketModel {
-    symbol: String,
-    interval: String,
-    openTime: Number,
-    open: String,
-    high: String,
-    low: String,
-    close: String,
-    volume: String,
-    closeTime: Number,
+    symbol: string;
+    interval: string;
+    openTime: number;
+    open: string;
+    high: string;
+    low: string;
+    close: string;
+    volume: string;
+    closeTime: number;
 }
