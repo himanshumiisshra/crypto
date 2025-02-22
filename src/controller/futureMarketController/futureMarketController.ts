@@ -41,16 +41,16 @@ import mexCFutureMarketService from "../../modules/futureMarket/mexc/service";
 export class futureMarketController {
     // private binance_market_service: binanceFutureMarketService;
     // private byBit_market_service: byBitFutureMarketService;
-    // private kuCoin_future_market_service: kuCoinFutureMarketService;
-    private mexc_future_market_service: mexCFutureMarketService;
+     private kuCoin_future_market_service: kuCoinFutureMarketService;
+    // private mexc_future_market_service: mexCFutureMarketService;
     private io: Server;
 
     constructor(server: any) {
         this.io = new Server(server, { cors: { origin: "*" } });
         // this.binance_market_service = new binanceFutureMarketService(server);
         // this.byBit_market_service = new byBitFutureMarketService(server);
-        // this.kuCoin_future_market_service = new kuCoinFutureMarketService(server)
-        this.mexc_future_market_service = new mexCFutureMarketService(server);
+        this.kuCoin_future_market_service = new kuCoinFutureMarketService(server)
+        // this.mexc_future_market_service = new mexCFutureMarketService(server);
     }
 
     // public async getAllOHLCV(req: Request, res: Response) {
@@ -97,15 +97,27 @@ export class futureMarketController {
 
     public async getAllOHLCV(req:Request, res: Response) {
         try {
+
              const { symbol, limit = 100 } = req.query;
-            const filter: any = {};
+             const filter: any = {};
 
-            if (symbol) filter.symbol = symbol;
+             if (symbol) filter.symbol = symbol;
 
-            const data = await this.mexc_future_market_service.find(filter);
-            const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
+            const data = await this.kuCoin_future_market_service.find(filter);
+             const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
 
-            return res.status(200).json(sortedData);
+             return res.status(200).json(sortedData);
+
+            //mexc coin
+           //  const { symbol, limit = 100 } = req.query;
+            // const filter: any = {};
+
+            // if (symbol) filter.symbol = symbol;
+
+            // const data = await this.mexc_future_market_service.find(filter);
+            // const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
+
+            // return res.status(200).json(sortedData);
 
         } catch (error) {
             console.log("ERROR", error)
