@@ -5,7 +5,7 @@ export class futureMarketRoute {
     private future_market_controller: futureMarketController;
 
     constructor(server: any) {
-        this.future_market_controller = new futureMarketController(server); // Pass server instance
+        this.future_market_controller = new futureMarketController(server);
     }
 
     public route(app: Application): void {

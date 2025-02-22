@@ -1,6 +1,6 @@
 
 import * as http from "http";
-import {app} from './config/server';
+import { app } from './config/server';
 import "dotenv/config";
 const server = http.createServer(app);
 const port = parseInt(process.env.PROJECT_PORT as string, 10) || 3003;

@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import { createServer } from "http"; 
+import { createServer } from "http";
 import { Server } from "socket.io";
 var bodyParser = require('body-parser');
-import {futureMarketRoute} from "../routes/futureMarketRoute/futureMarketRoute";
+import { futureMarketRoute } from "../routes/futureMarketRoute/futureMarketRoute";
 
 
 class App {
@@ -14,8 +14,8 @@ class App {
 
     constructor() {
         this.app = express();
-        this.server = createServer(this.app); // Create HTTP server
-        this.io = new Server(this.server, { cors: { origin: "*" } }); // Initialize WebSocket Server
+        this.server = createServer(this.app);
+        this.io = new Server(this.server, { cors: { origin: "*" } });
 
         this.config();
         this.mongoSetup();
@@ -28,9 +28,9 @@ class App {
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(bodyParser.json({ limit: "60mb" }));
     }
-   
 
-    private mongoSetup(): void{
+
+    private mongoSetup(): void {
         const mongoUri = "mongodb+srv://himanshu90210:Bhumbumbhole1@cluster90210.1phpfjw.mongodb.net/balkan_tech_solution"; // Fallback URI
 
         mongoose.connect(mongoUri)
@@ -53,9 +53,8 @@ class App {
     }
 
     private routes(): void {
-        // Instantiate futureMarketRoute and pass the server instance
         const futureMarket = new futureMarketRoute(this.server);
-        futureMarket.route(this.app); // Pass the app instance to the route
+        futureMarket.route(this.app);
     }
 }
 const appInstance = new App();

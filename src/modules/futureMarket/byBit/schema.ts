@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const byBitFutureMarketSchema = new Schema({
     symbol: {
         type: String,
-        required: true,  // Fixed typo from `requires` to `required`
+        required: true,  
     },
     interval: {
         type: String,
@@ -16,23 +16,23 @@ const byBitFutureMarketSchema = new Schema({
         required: true,
     },
     open: {
-        type: String,  // Can also be a Number if desired
+        type: String,  
         required: true,
     },
     high: {
-        type: String,  // Can also be a Number if desired
+        type: String,  
         required: true,
     },
     low: {
-        type: String,  // Can also be a Number if desired
+        type: String, 
         required: true,
     },
     close: {
-        type: String,  // Can also be a Number if desired
+        type: String, 
         required: true,
     },
     volume: {
-        type: String,  // Can also be a Number if desired
+        type: String, 
         required: true,
     },
     closeTime: {
@@ -40,7 +40,7 @@ const byBitFutureMarketSchema = new Schema({
         required: true,
     }
 }, {
-    timestamps: true  // Automatically adds `createdAt` and `updatedAt` fields
+    timestamps: true  
 });
 
-export default mongoose.model('ByBitFutureMarketSchema', byBitFutureMarketSchema);  // The model name can be anything you like
+export default mongoose.model('ByBitFutureMarketSchema', byBitFutureMarketSchema);  

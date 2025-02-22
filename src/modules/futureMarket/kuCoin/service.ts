@@ -1,13 +1,13 @@
 import { Server } from "socket.io";
 import { kuCoinFutureMarketModel } from "./model";
 import kuCoinFutureMarketSchema from "./schema";
-import { Server as HttpServer } from "http"; // Import the socket.io-client properly
+import { Server as HttpServer } from "http";
 import axios from "axios";
 
-// KuCoin WebSocket URL
-const KUCOIN_WS_URL = "wss://ws-api.kucoin.com/endpoint"; // WebSocket URL for KuCoin
 
-// KuCoin Future Market Service Class
+const KUCOIN_WS_URL = "wss://ws-api.kucoin.com/endpoint";
+
+
 export default class kuCoinFutureMarketService {
     private io: Server;
     private socket: WebSocket | null = null;
@@ -17,26 +17,26 @@ export default class kuCoinFutureMarketService {
         this.io = new Server(server, {
             cors: { origin: "*" },
         });
-        this.symbols = symbols;  // Symbols like BTC-USDT, XBTUSDTM
+        this.symbols = symbols;
         this.initializeKuCoinWebSocket();
     }
 
-    // Initialize KuCoin WebSocket connection
+
     private async initializeKuCoinWebSocket() {
         console.log("Initializing KuCoin WebSocket...");
-    
+
         const token = await this.getKuCoinToken();
         if (!token) {
             console.error("❌ Failed to get KuCoin WebSocket token");
             return;
         }
-    
+
         const kuCoinWsUrl = `wss://ws-api.kucoin.com/endpoint?token=${token}`;
         this.socket = new WebSocket(kuCoinWsUrl);
-    
+
         this.socket.onopen = () => {
             console.log("✅ Connected to KuCoin WebSocket");
-    
+
             // Initial message to acknowledge the connection
             this.socket?.send(JSON.stringify({
                 id: Date.now(),
@@ -46,12 +46,12 @@ export default class kuCoinFutureMarketService {
             }));
             console.log(`Subscribed to: /contractMarket/limitCandle:XBTUSDTM_1hour`);
         };
-    
+
         this.socket.onmessage = async (event) => {
             try {
                 const json = JSON.parse(event.data.toString());
                 console.log("Received data from KuCoin:", json);
-    
+
                 // Handling acknowledgment message
                 if (json.type === "ack" && json.id) {
                     console.log(`Acknowledgment received for id: ${json.id}`);
@@ -64,11 +64,11 @@ export default class kuCoinFutureMarketService {
                     }));
                     console.log(`Re-subscribed with id: ${json.id}`);
                 }
-    
+
                 // Handling incoming message data (candlestick data)
                 if (json.type === "message" && json.subject === "candle.stick" && json.data) {
                     const { symbol, candles } = json.data;
-    
+
                     // Process the received Kline (candlestick) data
                     const kline = candles;
                     const ohlcvData: kuCoinFutureMarketModel = {
@@ -82,60 +82,58 @@ export default class kuCoinFutureMarketService {
                         volume: kline[5],   // Volume (not to use in this case)
                         closeTime: kline[6] // Close time (not to be used)
                     };
-    
+
                     // Save OHLCV data to MongoDB
                     await this.create(ohlcvData);
-    
+
                     // Emit the OHLCV data to clients using socket.io
                     this.io.emit("ohlcv_update", ohlcvData);
                     console.log("📊 KuCoin Futures OHLCV Data Saved & Emitted:", ohlcvData);
                 }
-    
+
             } catch (error) {
                 console.error("❌ WebSocket Data Error:", error);
             }
         };
-    
+
         this.socket.onerror = (error) => {
             console.error("❌ WebSocket Error:", error);
         };
-    
+
         this.socket.onclose = () => {
             console.log("⚠️ KuCoin WebSocket Disconnected. Reconnecting...");
-            setTimeout(() => this.initializeKuCoinWebSocket(), 5000); // Auto-reconnect on disconnect
+            setTimeout(() => this.initializeKuCoinWebSocket(), 5000);
         };
     }
-    
 
-    // Method to save the OHLCV data to MongoDB
+
     private async create(data: kuCoinFutureMarketModel) {
         try {
             const ohlcvRecord = new kuCoinFutureMarketSchema(data);
-            return await ohlcvRecord.save(); // Save the data to MongoDB
+            return await ohlcvRecord.save();
         } catch (error: any) {
             console.error(`❌ Error saving OHLCV Data: ${error.message}`);
             throw new Error(`❌ Error saving OHLCV Data: ${error.message}`);
         }
     }
 
-    // Method to get the WebSocket token (Assuming it's fetched using an API request)
     private async getKuCoinToken() {
         try {
-            // Assuming you're getting the token through a POST request (adjust headers if needed)
+
             const response = await axios.post('https://api.kucoin.com/api/v1/bullet-public');
-            return response.data.data.token;  // The WebSocket token
+            return response.data.data.token;
         } catch (error: any) {
             console.error("❌ Error fetching KuCoin WebSocket token:", error.message);
             return null;
         }
     }
-    
 
-    // Method to find data from the MongoDB collection
+
+
     public async find(filter: any) {
         try {
-            // Find documents matching the filter
-            return await kuCoinFutureMarketSchema.find(filter).sort({ openTime: -1 }); // Sort by openTime descending
+
+            return await kuCoinFutureMarketSchema.find(filter).sort({ openTime: -1 });
         } catch (error: any) {
             console.error(`❌ Error fetching OHLCV Data: ${error.message}`);
             throw new Error(`❌ Error fetching OHLCV Data: ${error.message}`);

@@ -1,36 +1,3 @@
-// import { Request, Response } from 'express';
-// import { binanceFutureMarketModel } from "../../modules/futureMarket/binance/model";
-// import binance_future_market_schema from "../../modules/futureMarket/binance/schema";
-// import binanceFutureMarketService from "../../modules/futureMarket/binance/service";
-// import { createServer } from "http";
-
-// export class futureMarketController {
-//     private binance_market_service: binanceFutureMarketService;
-
-//     constructor(server: any) {
-//         this.binance_market_service = new binanceFutureMarketService(server);
-//     }
-
-//     public async getAllOHLCV(req: Request, res: Response) {
-//         try {
-//             const { symbol, limit = 100 } = req.query;
-
-//             const filter: any = {};
-//             if (symbol) filter.symbol = symbol;
-
-//             // Fetch data from MongoDB
-//             const data = await binance_future_market_schema.find(filter)
-//                 .sort({ openTime: -1 })
-//                 .limit(Number(limit));
-
-//             return res.status(200).json(data);
-//         } catch (error) {
-//             console.error("❌ Error fetching Futures OHLCV Data:", error);
-//             return res.status(500).json({ message: "Internal Server Error" });
-//         }
-//     }
-// }
-
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 import binanceFutureMarketService from "../../modules/futureMarket/binance/service";
@@ -40,9 +7,9 @@ import mexCFutureMarketService from "../../modules/futureMarket/mexc/service";
 
 export class futureMarketController {
     private binance_market_service: binanceFutureMarketService;
-     private byBit_market_service: byBitFutureMarketService;
-     private kuCoin_future_market_service: kuCoinFutureMarketService;
-     private mexc_future_market_service: mexCFutureMarketService;
+    private byBit_market_service: byBitFutureMarketService;
+    private kuCoin_future_market_service: kuCoinFutureMarketService;
+    private mexc_future_market_service: mexCFutureMarketService;
     private io: Server;
 
     constructor(server: any) {
@@ -55,131 +22,36 @@ export class futureMarketController {
     public async getAllOHLCV(req: Request, res: Response) {
         try {
             console.log("Checking for query", req.query);
-    
-            // Destructuring query parameters
             const { symbol, limit = 100 } = req.query;
-    
-            // Initialize the filter object
             const filter: any = {};
-    
-            // If symbol is provided in the query, add it to the filter
             if (symbol) {
                 filter.symbol = symbol;
             }
-    
-            // Fetch the data from different services
             const byBitData = await this.byBit_market_service.find(filter);
             const binanceData = await this.binance_market_service.find(filter);
             const kuCoinData = await this.kuCoin_future_market_service.find(filter);
             const mexcData = await this.mexc_future_market_service.find(filter);
-    
-            // Combine all data from different services
             const allData = [
                 ...byBitData,
                 ...binanceData,
                 ...kuCoinData,
                 ...mexcData,
             ];
-    
-            // If no data from any service, return a 404 or message indicating no data
             if (allData.length === 0) {
                 return res.status(404).json({ message: "No data found" });
             }
-    
-            // Sort all the data by openTime in descending order and limit it to the specified amount
+
             const sortedData = this.sortAndLimitData(allData, Number(limit));
-    
-            // Return the sorted and sliced data as the response
             return res.status(200).json(sortedData);
-    
+
         } catch (error) {
             console.error("Error fetching Futures OHLCV Data:", error);
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
-    
-    // Helper function to sort and limit data
+
     private sortAndLimitData(data: any[], limit: number) {
         return data.sort((a, b) => b.openTime - a.openTime).slice(0, limit);
     }
-    
-    // public async getAllOHLCV(req: Request, res: Response) {
-    //     try {
-    //         console.log("cheking for query",req.query)
-    //         // Destructuring query parameters
-    //     const { symbol, limit = 100 } = req.query;
-        
-    //     // Initialize the filter object
-    //     const filter: any = {};
-        
-    //     // If symbol is provided in the query, add it to the filter
-    //     if (symbol) {
-    //         filter.symbol = symbol;
-    //     }
 
-    //     // Fetch the data using the filter
-    //     const byBitData = await this.byBit_market_service.find(filter);
-    //     const binanceData = await this.binance_market_service.find(filter);
-    //     const kuCoinData = await this.kuCoin_future_market_service.find(filter);
-    //     const mexcData = await this.mexc_future_market_service.find(filter);
-
-    //     // Sort the data by openTime in descending order and limit it to the specified amount
-    //     const sortedData = byBitData.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-    //     const sortedDataa = binanceData.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-    //     const sortedDataaaa = kuCoinData.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-    //     const sortedDataaaaa = mexcData.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-
-
-    //     // Return the sorted and sliced data as the response
-    //     if(sortedData || sortedDataa || sortedDataaaa || sortedDataaaaa)
-
-    //     return res.status(200).json(sortedData || sortedDataa || sortedDataaaa || sortedDataaaaa);
-
-
-    //         //binance
-
-    //         // const { symbol, limit = 100 } = req.query;
-    //         // const filter: any = {};
-
-    //         // if (symbol) filter.symbol = symbol;
-
-    //         // const data = await this.binance_market_service.find(filter);
-    //         // const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-
-    //         // return res.status(200).json(sortedData);
-
-    //     } catch (error) {
-    //         console.error("Error fetching Futures OHLCV Data:", error);
-    //         return res.status(500).json({ message: "Internal Server Error" });
-    //     }
-    // }
-
-    // public async getAllOHLCV(req:Request, res: Response) {
-    //     try {
-
-    //          const { symbol, limit = 100 } = req.query;
-    //          const filter: any = {};
-
-    //          if (symbol) filter.symbol = symbol;
-
-    //         const data = await this.kuCoin_future_market_service.find(filter);
-    //          const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-
-    //          return res.status(200).json(sortedData);
-
-    //         //mexc coin
-    //        //  const { symbol, limit = 100 } = req.query;
-    //         // const filter: any = {};
-
-    //         // if (symbol) filter.symbol = symbol;
-
-    //         // const data = await this.mexc_future_market_service.find(filter);
-    //         // const sortedData = data.sort((a, b) => b.openTime - a.openTime).slice(0, Number(limit));
-
-    //         // return res.status(200).json(sortedData);
-
-    //     } catch (error) {
-    //         console.log("ERROR", error)
-    //     }
-    // }
 }

@@ -61,7 +61,7 @@ export default class binanceFutureMarketService {
 
         this.socket.onclose = () => {
             console.log("⚠️ Binance WebSocket Disconnected. Reconnecting...");
-            setTimeout(() => this.initializeWebSocket(), 5000); // Auto-reconnect
+            setTimeout(() => this.initializeWebSocket(), 5000);
         };
     }
 
@@ -74,7 +74,6 @@ export default class binanceFutureMarketService {
         }
     }
 
-    // ✅ Add the missing `find` method
     async find(filter: any) {
         try {
             return await binance_future_market_schema.find(filter);

@@ -6,39 +6,39 @@ const schema = new Schema(
     {
         symbol: {
             type: String,
-            required: true, // Required field for the market symbol
+            required: true,
         },
         openTime: {
             type: Number,
-            required: true, // Required field for the opening timestamp
+            required: true,
         },
         open: {
             type: String,
-            required: true, // Required field for the opening price
+            required: true,
         },
         high: {
             type: String,
-            required: true, // Required field for the highest price
+            required: true,
         },
         low: {
             type: String,
-            required: true, // Required field for the lowest price
+            required: true,
         },
         close: {
             type: String,
-            required: true, // Required field for the closing price
+            required: true,
         },
         volume: {
             type: String,
-            required: true, // Required field for the volume of the deal
+            required: true,
         },
         closeTime: {
             type: Number,
-            required: true, // Required field for the closing timestamp
+            required: true,
         },
     },
     {
-        timestamps: true, // Automatically add createdAt and updatedAt fields
+        timestamps: true,
     }
 );
 
